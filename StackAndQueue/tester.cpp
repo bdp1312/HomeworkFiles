@@ -9,14 +9,14 @@ int main() {
 	if (myAStack.isEmpty()){
 		cout<<"empty\n";
 	} else {
-		cout<<"not empty";
+		cout<<"not empty\n";
 	}
 	myAStack.push(1);
 	cout << myAStack.peek() << "\n";
 	if (myAStack.isEmpty()){
 		cout<<"empty\n";
 	} else {
-		cout<<"not empty";
+		cout<<"not empty\n";
 	}
 	myAStack.push(2);
 	cout << myAStack.peek() << "\n";
@@ -26,5 +26,8 @@ int main() {
 		myAStack.push(i);
 	}
 	cout << myAStack.peek() << "\n";
+
+	ArrayStack<int>myStackTwo{myAStack};
+
 	return 0;
 }

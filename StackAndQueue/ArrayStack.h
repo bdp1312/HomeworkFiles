@@ -11,25 +11,6 @@ private:
   T *myArray;
   int top;//stores number of elements on the stack
   int space;// stores maximum number of elements that can be allocated with currant array.
-  // void copy(T *myArray)
-  // {
-  //    T *temp = new T[(space * 2) + 1];
-  //    for(int i = 0; i <= space; ++i){
-  //      temp[i] = myArray[i];
-  //    }
-  //    myArray = temp;
-  //    return;
-  //
-  //   // T *p = new T[space * 2];
-  //   // for (int i=0; i!=a.space; ++i)
-  //   // p[i] = a.myArray[i];
-  //   // delete[] myArray; // delete old elements
-  //   // myArray = p;
-  //   // space = a.space;
-  //   // return *this;
-  //   //create new array twice the size of old array
-  //   //copy values of old array to new array
-  // }
 
 
   public:
@@ -42,6 +23,15 @@ private:
       myArray = new T[s];
       top = -1;
       space = s;
+    }
+
+    ArrayStack(const ArrayStack& a){
+      myArray = new T[a.space];
+      top = a.top;
+      for(int i = 0; i <= top; i++){
+        myArray[i] = a.myArray[i];
+      }
+      space = a.space;
     }
 
 	   ~ArrayStack() //destroys the ArrayStack Object. Deaclocates memory
@@ -66,7 +56,6 @@ private:
         }
         delete [] myArray;
         myArray = temp;
-        //delete [] temp;
       }
       myArray[top+1] = t;
       top+=1;
