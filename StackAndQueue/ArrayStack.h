@@ -62,12 +62,13 @@ private:
       if(top + 1 == space){
         T *temp = new T[(space * 2) + 1];
         for(int i = 0; i <= space; ++i){
-        temp[i] = myArray[i];
+            temp[i] = myArray[i];
         }
+        delete [] myArray;
         myArray = temp;
-        delete [] temp;
+        //delete [] temp;
       }
-      myArray[space+1] = t;
+      myArray[top+1] = t;
       top+=1;
 
   	  // if alocated space is full add more.
