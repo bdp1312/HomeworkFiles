@@ -19,19 +19,41 @@ private:
       top = -1;
       space = 10;
     }
-    ArrayStack(int s){
-      myArray = new T[s];
+    ArrayStack(int s){//constructor for protected custom size
+      if(s > 0){
+        myArray = new T[s];
+        space = s;
+      }
+      else{
+        myArray = new T[0];
+        space = 0;
+      }
       top = -1;
-      space = s;
     }
 
-    ArrayStack(const ArrayStack& a){
-      myArray = new T[a.space];
+    ArrayStack(const ArrayStack& a)//copy constructor
+    {
       top = a.top;
-      for(int i = 0; i <= top; i++){
+      space= a.space;
+      myArray=new T[space];
+      for(int i = 0; i != top; i++){
         myArray[i] = a.myArray[i];
       }
+    }
+
+    ArrayStack& operator=(const ArrayStack &a) {
+      //copy opperator, still needs template arg. is there a way to get around that?
+      top = a.top;
       space = a.space;
+      T * temp = new T[space];
+      for(int i = 0; i != top; i++){
+        temp[i] = a.myArray[i];
+      }
+      //delete [] myArray;
+      myArray = temp;
+      return *this;
+
+      //delete [] a.myArray;
     }
 
 	   ~ArrayStack() //destroys the ArrayStack Object. Deaclocates memory
@@ -56,6 +78,7 @@ private:
         }
         delete [] myArray;
         myArray = temp;
+        space = (space*2)+1;
       }
       myArray[top+1] = t;
       top+=1;
@@ -79,6 +102,10 @@ private:
   	  //if isEmpty == True, show stack is empty
   	  //else return value
   	}
+    // void getSpecs(){ //diagnostic method prints top and space vars
+    //   std::cout << "top:" << top << "\n";
+    //   std::cout << "space" << space << "\n";
+    // }
 
 
 };

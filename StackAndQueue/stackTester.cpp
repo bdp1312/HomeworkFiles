@@ -4,8 +4,9 @@
 
 using std::cout;
 int main() {
-	cout << "stack and queue tester code\n";
+	cout << "stack tester code\n";
 	ArrayStack<int>myAStack;
+	myAStack.getSpecs();
 	if (myAStack.isEmpty()){
 		cout<<"empty\n";
 	} else {
@@ -27,7 +28,21 @@ int main() {
 	}
 	cout << myAStack.peek() << "\n";
 
+	myAStack.getSpecs();
+
 	ArrayStack<int>myStackTwo{myAStack};
+	for(int i = 0; i < 1000; ++i){
+		myStackTwo.push(i);
+	}
+	cout<<myStackTwo.peek()<<'\n';
+	for(int i = 0; i < 1000; ++i){
+		myStackTwo.pop();
+	}
+	ArrayStack<int> myStackThree = myStackTwo;
+	myStackThree.push(5);
+	cout << myStackThree.pop()<<'\n';
+
+	//ArrayStack<int> myStackTwo = myAStack;
 
 	return 0;
 }
