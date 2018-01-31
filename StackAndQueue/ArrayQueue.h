@@ -1,7 +1,7 @@
 #include"Queue.h"
 
-#ifndef ArrayStack_H
-#define ArrayStack_H
+#ifndef ArrayQueue_H
+#define ArrayQueue_H
 
 template<typename T>
 class ArrayQueue: public Queue<T>{
@@ -37,7 +37,7 @@ class ArrayQueue: public Queue<T>{
       size = a.size;
       space= a.space;
       myArray=new T[space];
-      for(int i = 0; i < space; i++){
+      for(int i = 0; i < space; ++i){
         myArray[i] = a.myArray[i];
       }
     }
@@ -81,9 +81,11 @@ class ArrayQueue: public Queue<T>{
 
     T dequeue(){
       if(!isEmpty()){
+        int retIndex = start;
         ++start;
+        if(start == space){start = 0;}
         --size;
-        return myArray[start-1];
+        return myArray[retIndex];
       }
     }
 

@@ -36,7 +36,7 @@ private:
       top = a.top;
       space= a.space;
       myArray=new T[space];
-      for(int i = 0; i != top; i++){
+      for(int i = 0; i <= top; i++){
         myArray[i] = a.myArray[i];
       }
     }
@@ -46,7 +46,7 @@ private:
       top = a.top;
       space = a.space;
       T * temp = new T[space];
-      for(int i = 0; i != top; i++){
+      for(int i = 0; i <= top; i++){
         temp[i] = a.myArray[i];
       }
       //delete [] myArray;
@@ -73,7 +73,7 @@ private:
   	{
       if(top + 1 == space){
         T *temp = new T[(space * 2) + 1];
-        for(int i = 0; i <= space; ++i){
+        for(int i = 0; i < space; ++i){
             temp[i] = myArray[i];
         }
         delete [] myArray;
