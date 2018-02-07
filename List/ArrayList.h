@@ -76,18 +76,22 @@ void insert(const T &t,int index){   // insert this element before the given ind
   if((top+1) == space){
     grow();
   }
-  for(int i = index; i < space){
+  for(int i = top; i !> index; --i){
     data[i+1]=data[i];
   }
   ++top;
   data[index] = t;
 }
 const T &operator[](int index) const{ // get the element at index.
-
+  return *data[index]
 }
 T &operator[](int index);             // get the element at index.
-void remove(int index);               // remove the item at the given index.
-
+void remove(int index){               // remove the item at the given index.
+  for(int i = index; i < top; ++i){
+    data[i] = data[i+1];
+  }
+  --top;
+}
 class iterator{
   iterator(T *l);
   iterator();
@@ -102,12 +106,26 @@ class iterator{
   iterator operator--(int);
 };
 
+class const_iterator{
+  const_iterator(T *l);
+  const_iterator();
+  const_iterator(const iterator &i);
+  T &operator*();
+  bool operator==(const iterator &i) const;
+  bool operator!=(const iterator &i) const;
+  iterator &operator=(const iterator &i);
+  iterator &operator++();
+  iterator &operator--();
+  iterator operator++(int);
+  iterator operator--(int);
+};
+
 iterator begin();
-const iterator begin() const;
+const_iterator begin() const;
 iterator end();
-const iterator end() const;
-const iterator cbegin() const;
-const iterator cend() const;
+const_iterator end() const;
+const_iterator cbegin() const;
+const_iterator cend() const;
 
 
 };
