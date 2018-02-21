@@ -21,7 +21,7 @@ public:
 		Node *i;
 	public:
 		iterator(){
-			Node *i = nullptr;
+			i = nullptr;
 		}
 		iterator(int index){
 			i = sentinal;
@@ -48,7 +48,7 @@ public:
 			i=i->next;
 		}
 		iterator operator--(int num){
-			i=i->last;
+			i=i->prev;
 		}
 		friend class const_iterator;
 		friend class LinkedList;
@@ -56,34 +56,48 @@ public:
 	class const_iterator{
 		Node *i;
 	public:
-
-
+		const_iterator(){
+			i = nullptr;
+		}
+		const_iterator(int index){
+			i = sentinal;
+			for(int i=0;i<index;++i){
+				i = i->next;
+			}
+		}
+		const_iterator(Node *myNode){
+			i = myNode;
+		}
 		const T &operaotr*(){
-
+			return i->data;
 		}
 		bool operator*(){
-
+			return i == iter;
 		}
 		bool operator==(const const_iterator &itr){
-
+			return i == iter;
 		}
 		bool operator!=(const const_iterator &itr){
-
+			return i != iter;
 		}
 		const_iterator &operator=(const const_iterator &itr) {
-
+			i = iter;
 		}
     const_iterator &operator++() {
-
+			i=i->next;
 		}
     const_iterator &operator--() {
-
+			i=i->prev;
 		}
     const_iterator operator++(int num) {
-
+			for(int i=0; i<num; ++i){
+				i=i->next;
+			}
     }
-    const_iterator operator--(int) {
-
+    const_iterator operator--(int num) {
+			for(int i=0; i<num; ++i){
+				i=i->next;
+			}
     }
 	};
 	// General Methods
@@ -95,15 +109,35 @@ public:
 		sentinal->next = sentinal;
 	}
 	LinkedList &operator=(const LinkedList &al) {
-	// TODO
+		for(int i = 0; i<top; ++i){
+
+		}
 	}
-	~LinkedList() {
-	 //recursivly remove nodes then free LinkedList
+	~LinkedList() {//recursivly remove nodes then free LinkedList
+		iterator rover = end();
+		if((rover->next)!= nullptr)
 	}
-	void push_back(const T &t);           // add to the end.
-	void pop_back();                      // remove last element.
-	int size() const;
-	void clear();
+	void push_back(const T &t){           // add to the end.
+		iterator rover = end();
+		rover = rover->prev;
+		insert(rover, t);
+	}
+	void pop_back(){                      // remove last element.
+		iterator rover = end();
+		rover = rover->prev;
+		erase(rover);
+	}
+	int size() const{
+		return (top);
+	}
+	void clear(){
+		Node *ptr = end(sentinal);
+		for(int i=0; i < top-1;++i){
+			Node *temp= ptr;
+			ptr = ptr->next;
+			erase(temp);
+		}
+	}
 	iterator insert(iterator position,const T &t){    // insert this element before the given index.
 		auto pos = position;
 		auto newNode = new Node;
@@ -116,8 +150,9 @@ public:
 	}
 	const T &operator[](int index) const; // get the element at index.
 	T &operator[](int index);             // get the element at index.
-	iterator erase(iterator position){    // remove the item at the given index.
-
+	iterator erase(iterator pos){    // remove the item at the given index.
+		Node *temp = pos;
+		pos->prev->next = pos->next;
 	}
   iterator begin(){
 		Node *ptr = sentinal->next;
@@ -132,7 +167,7 @@ public:
 		return iterator(ptr);
 	}
 	const_iterator end() const{
-		Node *ptr = sentinal
+		Node *ptr = sentinal;
 		return const_iterator(ptr);
 	}
 	const_iterator cbegin() const{
