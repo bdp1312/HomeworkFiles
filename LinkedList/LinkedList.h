@@ -1,7 +1,8 @@
+//Benjamin Parrish. Pledged
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
-templated<typename T>
+template<typename T>
 class ArrayList{
 	struct Node{
 		T data;
@@ -15,7 +16,7 @@ class ArrayList{
 	};
 	Node *sentinal;
 
-public:
+ public:
 	typedef T value_type;
 	class iterator{
 		Node *i;
@@ -55,7 +56,7 @@ public:
 	};
 	class const_iterator{
 		Node *i;
-	public:
+	 public:
 		const_iterator(){
 			i = nullptr;
 		}
@@ -68,12 +69,11 @@ public:
 		const_iterator(Node *myNode){
 			i = myNode;
 		}
-		const T &operaotr*(){
-			return i->data;
+		const T &operator*(){
+			auto retval = i->data;
+			return retval;
 		}
-		bool operator*(){
-			return i == iter;
-		}
+
 		bool operator==(const const_iterator &itr){
 			return i == iter;
 		}
@@ -104,7 +104,6 @@ public:
 
 	LinkedList(){
 		sentinal = new Node;
-		sentinal->data = nullptr;
 		sentinal->prev = sentinal;
 		sentinal->next = sentinal;
 	}
@@ -114,9 +113,8 @@ public:
 		}
 	}
 	~LinkedList() {//recursivly remove nodes then free LinkedList
-		iterator rover = end();
-		if((rover->next)!= nullptr)
-	}
+		clear()
+		delete [] sentinal;
 	void push_back(const T &t){           // add to the end.
 		iterator rover = end();
 		rover = rover->prev;
@@ -146,13 +144,17 @@ public:
 		newNode->next=pos->next;
 		pos->prev->next= newNode;
 		pos->next->prev= newNode;
+		top+=1;
 		return;
 	}
 	const T &operator[](int index) const; // get the element at index.
 	T &operator[](int index);             // get the element at index.
 	iterator erase(iterator pos){    // remove the item at the given index.
-		Node *temp = pos;
+		//Node *temp = pos;
 		pos->prev->next = pos->next;
+		pos->next->prev = pos->prev;
+		delete [] pos;
+		top-=1;
 	}
   iterator begin(){
 		Node *ptr = sentinal->next;
@@ -179,3 +181,4 @@ public:
 		return const_iterator(ptr);
 	}
 	};
+#endif
