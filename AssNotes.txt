@@ -1,0 +1,50 @@
+Notes for upcomming assignment:
+
+fopen(): takes a filename (const char *filename)
+and a mode(char *mode)
+	modes:
+	r+ read or write to existing file
+	w+ creates new file, overwrites any file of same name
+if open is sucessful, it returns a file object, this object is used in your
+class methods
+if open fails, a nullptr is return, it is good practice to protect for this.
+
+int fseek(FILE *stream, long int offset, int orign): takes file object, offest, and an orign
+
+fwrite(void *ptr, size_t size, size_t count, FILE * stream)//takes data sotred in ptr and writes it to file
+
+fread(void *ptr, size_t size, size_t count, FILE * stream)//reads data in file to ptf
+
+fclose(): takes a file object (FILE *filePointer)
+
+
+example code:
+#include <cstdio> (C standerd IO)
+#include <string>
+using std::string;
+using std::cout;
+usting std::endl;
+int main(){
+	string filename = "myFile.bin";
+	FILE *F = fopen(filename.c_str(), w+);
+//for an existing file substitute "r+"
+	if (f==nullptr) cout<<"error"<<endl;
+	
+	int y = 42;
+	fwrite(&y, sizeof(ing),1,f);
+	y = 16;	
+	fseek(f, sizeof(int), 1,f);
+	fwrite(&y sizeof(int), SEEK_SET);
+
+	fseek(f, 0, SEEK_SET); //see origin table on fseek website
+		
+	int x;
+	fread(&x, sizeof(int) , 1, f)//address of x //read one object at a time for HW, count will alwasy be one
+	cout<<x<<endl;
+	fclose(f);
+}
+
+//program outputs "42"
+//we do not need to worry about our size, per se, as the OS will take care of our file size.
+//use an int counter to keep track of the elements you have added
+Store vital information in the file.
