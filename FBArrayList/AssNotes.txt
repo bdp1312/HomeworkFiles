@@ -11,7 +11,8 @@ if open fails, a nullptr is return, it is good practice to protect for this.
 
 int fseek(FILE *stream, long int offset, int orign): takes file object, offest, and an orign
 
-fwrite(void *ptr, size_t size, size_t count, FILE * stream)//takes data sotred in ptr and writes it to file
+fwrite(void *ptr, size_t size, size_t count, FILE * stream)//takes data sotred in ptr and writes
+it to file
 //fwrite overwrites data at a certain position
 
 fread(void *ptr, size_t size, size_t count, FILE * stream)//reads data in file to ptf

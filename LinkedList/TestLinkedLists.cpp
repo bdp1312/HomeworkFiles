@@ -37,6 +37,7 @@ LinkedList<int> add3AndReturn(LinkedList<int> ll) {
 template<typename T>
 bool simpleTest(T &lst1) {
 	lst1.push_back(5);
+	cout<<lst1[0]<<endl;
 	lst1.push_back(6);
 	lst1.push_back(7);
 	lst1.push_back(8);

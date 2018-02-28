@@ -5,10 +5,15 @@
 #include "LinkedList.h"
 
 using std::cout;
+using std::endl;
 using std::string;
 using std::to_string;
 
+
+
 int main(){
-  myListOne= new LinkedList<T>;
+  LinkedList<int> myListOne;
+
+  cout<<"Tests Concluded"<<endl;
   return 0;
 }

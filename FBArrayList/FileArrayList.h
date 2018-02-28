@@ -6,19 +6,21 @@ class FileArrayList {
         // TODO - Your private data.
 
         //readfile(int index)
-        T Read(int index)const{
-          fseek(...)
-          fread(...)
+        T read(int index)const{
+          fseek(f, sizeof(T), index, f);
+          T retval;
+          fread(&retval, sizeof(T), 1, f);
+          return retval;
         }
 
-        void Write(int index, T data){
-          fseek(...)
-          fwrite(...)
+        void write(int index, T data){
+          fseek(f, sizeof(T), index, f);
+          fwrite(data, sizeof(T), SEEK_SET);
         }
         //writefile(int index)
 
         FILE *f;
-        int size;
+        int sz;
         // TODO - Private helper functions. (Maybe file IO with an index.)
 
     public:
@@ -86,24 +88,61 @@ class FileArrayList {
         FileArrayList(I begin,I end,const std::string &fname) {
             // TODO - Write this one here. It is easier than trying to fight with adding a template below.
             f=fopen(fname.cst(),"w+b");
-            for(auto itr=begin; iter!=end; ++itr){
-
+            sz = 0;
+            for(auto itr=begin; itr!=end; ++itr){
+              push_back(*itr);
             }
         }
         ~FileArrayList();
-        void push_back(const T &t);
-        void pop_back();
-        int size() const;
-        void clear();
-        const_iterator insert(const_iterator position, const T &t);
-        T operator[](int index) const;
-        const_iterator erase(const_iterator position);
-        void set(const T &value,int index);
-
-        const_iterator begin();
-        const_iterator begin() const;
-        const_iterator end();
-        const_iterator end() const;
-        const_iterator cbegin() const;
-        const_iterator cend() const;
+        void push_back(const T &t){
+          write(sz+1, t);
+          ++sz;
+        }
+        void pop_back(){
+          --sz;
+        }
+        int size() const{
+          return sz;
+        }
+        void clear(){
+          sz = 0;
+        }
+        const_iterator insert(const_iterator position, const T &t){
+          for(int i = sz; sz > position.i; --i){
+            write(i+1, read(i))
+          }
+          write(position.i, t);
+          ++sz;
+          return position;
+        }
+        T operator[](int index) const{
+          return read(index);
+        }
+        const_iterator erase(const_iterator position){
+          for(int i=position.i; i<sz; ++i){
+            write(i, read(i+1));
+          }
+          --sz;
+        }
+        void set(const T &value,int index){
+            write(index, value);
+        }
+        const_iterator begin(){
+          return const_iterator(0, f);
+        }
+        const_iterator begin() const{
+          return const_iterator(0, f);
+        }
+        const_iterator end(){
+          return const_iterator(sz, f);
+        }
+        const_iterator end() const{
+          return const_iterator(sz, f);
+        }
+        const_iterator cbegin() const{
+          return const_iterator(0, f);
+        }
+        const_iterator cend() const{
+          return const_iterator(sz, f);
+        }
 };
