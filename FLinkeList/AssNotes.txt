@@ -1,0 +1,4 @@
+//sentinal
+  stored in File.
+
+insert and erase treat all nodes the same

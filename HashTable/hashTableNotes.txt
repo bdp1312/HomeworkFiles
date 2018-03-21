@@ -1,0 +1,67 @@
+Hash table 
+	deals with sets with a large number of posible keys
+
+	hash table takes a key, calculates a hash value, and assings the key to that hash value's coresponding slot.
+
+	when h(x) =  h(y) we call that a collision.
+
+	HOW TO DEAL WITH COLLISIONS?
+
+chaining
+	create a linked list of items for each hash value
+
+open adressings
+	find a diferant, open adress to insert into.
+
+
+COST of chaining
+
+	to find a key, you must scan a whole list "bucket"
+	if all hash keys go to the same bucket your lookup cost is all n
+
+Properties of a good hash function
+	a hash function should always give the same has code for identical objects.
+	a hash fuction should give diferant vaules for unequal objects. 
+	the function should distribute objects along a broad range.
+
+	the has function should behave as a psudorandom number generator
+
+standard C++ hash function std::unordered_map
+
+Mapping to an array:
+	hash functions typicly written without knowing the size of future table.
+	max size is usualy max value of computer's int type. 
+	size can be reduced by modulo %
+
+calculation is hashfunction(k)%sizeofTable
+
+Simple unifom hashing assumption:
+	each key should be equaly likely to hash to any slot in the table independent of where the other keys are hashed
+
+	with n keys and tablel size m: average number of keys per slot is n/m
+	the result of this calculus is know as the LOAD FACTOR
+
+	the expected time to find a given key is 1 + n/m
+	this is an O(1) operation if m ~= n
+
+to kep find times down, double size of the table every time your load factor hits a predetermined limit.
+
+	to prevent buildup in lower keys, you need to reinsert all curant vaules of the old hash function into the new hash function
+
+posible hash functions
+
+DIVISION METHOD: h(k)= k % m
+	good if keys are already uniformly distributed
+	if m = 2^r then you will only look at r bits of the key
+	it is therfore a good practice to make m prime
+
+HASH MAP ASSIGNMENT
+follows the interface of std::unordered_map
+the iterator and const_iterator have already been implemented
+three template classes, K, V == key and value
+
+Insert fucntion will only insert if key is not found (no duplicate keys)
+if a duplicate key exists return value stored in existing key
+
+[] if desired value is not in the table, insert it and return its position.
+

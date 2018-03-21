@@ -16,6 +16,9 @@ class FileLinkedList {
 
         FILE *f;
         int filesize; //space at which the file ends
+
+        //int size; //number of alocated nodes
+
         int freespace; //pointer to unalocated node, ==-1 if none exist
         int nodeSize = sizeof(T)+sizeof(int)*2;//size of node
 
@@ -31,10 +34,10 @@ class FileLinkedList {
         //determines location of previous node, node is location in file
         static int readPrev(int node, FILE *f){
           int temp;
-          if(node ==0){
+          if(node ==-1){
             fseek(f, sizeof(int), SEEK_SET);
           }else {
-            fseek(f, node + sizeof(T), SEEK_SET);
+            fseek(f, node*nodeSize + sizeof(T), SEEK_SET);
           }
           fread(&temp, sizeof(int),1,f);
           return temp;
@@ -42,16 +45,12 @@ class FileLinkedList {
         //determines location of the next node
         static int readNext(int node, FILE *f){
           int temp;
-          if(node==0){
-            fseek(f, sizeof(int)*2, SEEK_SET);
-          } else {
-            fseek(f, node+sizeof(T)+sizeof(int), SEEK_SET);
-          }
+          fseek(f, node*nodeSize+sizeof(int)+sizeof(T), SEEK_SET);
           fread(&temp, sizeof(int), 1, f);
           return temp;
         }
         void writePrev(int node, int pos, FILE *f){
-          if(node==0){
+          if(node==-1){
             fseek(f, sizeof(int), SEEK_SET);
           }else{
             fseek(f, node + sizeof(T), SEEK_SET);
@@ -95,7 +94,7 @@ class FileLinkedList {
         class const_iterator {
                 // TODO - Your private data.
                 FILE *file;
-                int pos; //holds location of node in file
+                int pos; //position in linked list
               public:
                 const_iterator(int i,FILE *fname) : file{fname},pos{i} {}
                 const_iterator(const const_iterator &i){
@@ -118,21 +117,21 @@ class FileLinkedList {
                   return *this;
                 }
                 const_iterator &operator++(){
-                  pos = readNext(pos, file);
+                  ++pos;
                   return *this;
                 }
                 const_iterator &operator--(){
-                  pos=readPrev(pos, file);
+                  --pos;
                   return *this;
                 }
                 const_iterator operator++(int){
                   const_iterator oldPos(pos, file);
-                  pos = readNext(pos, file);
+                  ++pos;
                   return oldPos;
                 }
                 const_iterator operator--(int){
                   const_iterator oldPos(pos, file);
-                  pos=readPrev(pos, f);
+                  --pos;
                   return oldPos;
                 }
 
@@ -140,18 +139,19 @@ class FileLinkedList {
         };
 
         // General Methods
-        FileLinkedList(const std::string &fname){
+        FileLinkedList(const std::string &fname) //if file exist read size and freespace
+        {
           f=fopen(fname.c_str(), "r+b");
           if(f!=nullptr){
             readSize(f);
-            fseek(f, 0, SEEK_SET);
+            fseek(f, sizeof(int), SEEK_SET);
             fread(&freespace, sizeof(int), 1, f);
           } else {
             f = fopen(fname.c_str(), "w+b");
-            readPrev(0, f);
+            writeSize(0, f);
+            writeFreespace(0, f);
+            writePrev(0, f);
             readNext(0, f);
-            filesize = sizeof(int)*4;
-            writeSize(filesize, f);
 
             //cout<< "filesize = "<< filesize<<endl;
             freespace=-1;
