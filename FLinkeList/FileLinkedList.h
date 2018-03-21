@@ -97,12 +97,7 @@ class FileLinkedList {
                 FILE *file;
                 int pos; //holds location of node in file
               public:
-                const_iterator(int i, FILE *f){//position in file, file object
-                  cout<< "i = "<< i << endl;
-                  pos = i;
-                  cout<<pos<<endl;
-                  file = f;
-                }
+                const_iterator(int i,FILE *fname) : file{fname},pos{i} {}
                 const_iterator(const const_iterator &i){
                   pos = i.pos;
                   file = i.file;
@@ -158,7 +153,7 @@ class FileLinkedList {
             filesize = sizeof(int)*4;
             writeSize(filesize, f);
 
-            cout<< "filesize = "<< filesize<<endl;
+            //cout<< "filesize = "<< filesize<<endl;
             freespace=-1;
           }
         }
