@@ -62,7 +62,7 @@ bool checkEquality(const std::string &fname,list<V> &data) {
 
 template<typename T>
 bool simpleTest(T &lst1,const string &secondFile) {
-	lst1.clear();
+	//lst1.clear();
 	lst1.push_back(5);
 	if(lst1[0]!=5) { cout << "[0]' error after push_back 5, but got " <<lst1[0]<< endl; return false; }
 	lst1.push_back(6);

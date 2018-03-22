@@ -20,7 +20,7 @@ class FileLinkedList {
         //int size; //number of alocated nodes
 
         int freespace; //pointer to unalocated node, ==-1 if none exist
-        int nodeSize = sizeof(T)+sizeof(int)*2;//size of node
+        static const int nodeSize = sizeof(T)+2*sizeof(int);//size of node
 
         // struct Node{
         //   T data;
@@ -33,59 +33,74 @@ class FileLinkedList {
 
         //determines location of previous node, node is location in file
         static int readPrev(int node, FILE *f){
+          cout<<"readPrev "<<"node: "<< node<<endl;
           int temp;
-          if(node ==-1){
-            fseek(f, sizeof(int), SEEK_SET);
-          }else {
-            fseek(f, node*nodeSize + sizeof(T), SEEK_SET);
-          }
+          fseek(f, node*nodeSize + sizeof(T)+2*sizeof(int), SEEK_SET);
           fread(&temp, sizeof(int),1,f);
           return temp;
         }
         //determines location of the next node
         static int readNext(int node, FILE *f){
+          cout<<"readnext "<<"node: "<< node<<endl;
           int temp;
-          fseek(f, node*nodeSize+sizeof(int)+sizeof(T), SEEK_SET);
+          fseek(f, node*nodeSize+sizeof(T)+3*sizeof(int), SEEK_SET);
           fread(&temp, sizeof(int), 1, f);
           return temp;
         }
         void writePrev(int node, int pos, FILE *f){
-          if(node==-1){
-            fseek(f, sizeof(int), SEEK_SET);
-          }else{
-            fseek(f, node + sizeof(T), SEEK_SET);
-          }
+          cout<<"writePrev "<<"node: "<< node<<" pos: "<<pos<<endl;
+          fseek(f, node*nodeSize + sizeof(T)+2*sizeof(int), SEEK_SET);
           fwrite(&pos, sizeof(int), 1, f);
         }
         void writeNext(int node, int pos, FILE *f){
-          if(node==0){
-            fseek(f, sizeof(int)*2, SEEK_SET);
-          }else{
-            fseek(f, node+sizeof(T)+sizeof(int), SEEK_SET);
-          }
+          cout<<"writeNext "<<"node: "<< node<<" pos: "<<pos<<endl;
+          fseek(f, node*nodeSize+sizeof(T)+3*sizeof(int), SEEK_SET);
           fwrite(&pos, sizeof(int), 1, f);
         }
         static T readData(int node, FILE* f){
+          cout<<"readData "<<"node: "<< node<<endl;
+          if(node == 0){
+            cout<< "warning! reading from the sentinal\n";
+          }
           T retval;
-          fseek(f, node, SEEK_SET);
+          fseek(f, node*nodeSize+2*sizeof(int), SEEK_SET);
           fread(&retval, sizeof(T), 1, f);
-          cout<< "reading at " << node<<endl;
           return retval;
         }
         void writeData(int node, T t, FILE* f){
+          cout<<"writeData "<<"node: "<< node<<endl;
+          if(node == 0){
+            cout<< "warning! writing to the sentinal\n";
+          }
           fseek(f, node, SEEK_SET);
           fwrite(&t, sizeof(T), 1, f);
+          cout<< "writing to "<< node<< endl;
         }
 
         static int readSize(FILE *f){
           int temp;
           fseek(f, 0, SEEK_SET);
           fread(&temp, sizeof(int), 1, f);
+          cout<<"filesize=" << temp<<endl;
           return temp;
         }
         void writeSize(int temp, FILE *f){
+          filesize= temp;
+          cout<<"writeSize "<<"temp: "<< temp<<endl;
           fseek(f, 0, SEEK_SET);
           fwrite(&temp, sizeof(int), 1, f);
+        }
+        static int readFreespace(FILE* f){
+          int temp;
+          fseek(f, sizeof(int), SEEK_SET);
+          fread(&temp, sizeof(int), 1, f);
+          cout<<"freespace = "<< temp<<endl;
+          return temp;
+        }
+        void writeFreespace(int n, FILE *f){
+          cout<<"writeFreespace "<<"n: "<< n<<endl;
+          fseek(f, sizeof(int), SEEK_SET);
+          fwrite(&n, sizeof(int), 1, f);
         }
 
     public:
@@ -96,7 +111,11 @@ class FileLinkedList {
                 FILE *file;
                 int pos; //position in linked list
               public:
-                const_iterator(int i,FILE *fname) : file{fname},pos{i} {}
+                const_iterator(int i,FILE *fname){
+                  cout<< "i: "<<i<<endl;
+                  pos = i;
+                  file = fname;
+                }
                 const_iterator(const const_iterator &i){
                   pos = i.pos;
                   file = i.file;
@@ -141,6 +160,7 @@ class FileLinkedList {
         // General Methods
         FileLinkedList(const std::string &fname) //if file exist read size and freespace
         {
+          cout<<"calling constructor"<<endl;
           f=fopen(fname.c_str(), "r+b");
           if(f!=nullptr){
             readSize(f);
@@ -148,13 +168,13 @@ class FileLinkedList {
             fread(&freespace, sizeof(int), 1, f);
           } else {
             f = fopen(fname.c_str(), "w+b");
-            writeSize(0, f);
-            writeFreespace(0, f);
-            writePrev(0, f);
-            readNext(0, f);
+            writeSize(1, f);
+            writeFreespace(1, f);
+            writePrev(0, 0, f);
+            writeNext(0, 0, f);
 
             //cout<< "filesize = "<< filesize<<endl;
-            freespace=-1;
+
           }
         }
 
@@ -175,35 +195,44 @@ class FileLinkedList {
         int size() const{return filesize;}
         void clear() { while (size()>0) pop_back(); }
 
-        const_iterator insert(const_iterator position, const T &t){
-          //filesize = readSize(f);
-          //cout<<"filesize: "<< filesize<<endl;
-          const_iterator myNode(readSize(f), f);
-          if (freespace != -1){
-            myNode.pos = freespace;
-            //fseek(f, freespace, SEEK_SET);
+        const_iterator insert(const_iterator position, const T &t)//writes node at first available freespace or at size if no valid freespace exists
+        {
+          cout<<"inserting at "<<position.pos<<endl;
+          freespace = readFreespace(f);
+          while (freespace > filesize){
+            cout<<"freespace > filesize"<<endl;
             freespace = readNext(freespace, f);
-          } else {
-            filesize= filesize + nodeSize;
-
+            cout<<"freespace "<< freespace <<endl;
+            cout<<"filesize: " << filesize<< endl;
           }
-          cout<<"myNode.pos "<<myNode.pos<<endl;
-          //fwrite(&t, sizeof(T); 1, f);
+          cout<<"freespace = "<< freespace<<endl;
+          const_iterator myNode(freespace, f);
           writeData(myNode.pos, t, f);
-         cout<< "inserting at: " << position.pos << endl;
-                    //fseek(f, sizeof(int), SEEK_CUR);
-          //fwrite(&readPrev(position.pos, f), sizeof(int), 1, f);
-          writeNext(myNode.pos, position.pos, f);
-          //fseek(f, sizeof(int), SEEK_CUR);
-          //fwrite(&readNext(position.pos, f), sizeof(int), 1, f);
-          writePrev(myNode.pos, readPrev(position.pos, f), f);
-          cout<< "seting myNode -> prev to: " <<readPrev(position.pos, f)<<endl;
-          writeNext(readPrev(myNode.pos, f), myNode.pos, f);
-          cout<< "setting myNode.prev -> next to "<< myNode.pos << endl;
-          writePrev(position.pos, myNode.pos, f);
+          writePrev(myNode.pos, readPrev(position.pos, f), f);//myNode->prev to --myNode->prev
+          writeNext(myNode.pos, readNext(readPrev(position.pos, f), f), f);//myNode->next to --myNode->next
+          writeNext(readPrev(myNode.pos, f), myNode.pos, f);//myNode->prev->next= myNode.pos
+          writePrev(readNext(myNode.pos, f), myNode.pos, f);//myNode->next->prev=myNode.pos
+
+         //  }
+         //  cout<<"myNode.pos "<<myNode.pos<<endl;
+         //  //fwrite(&t, sizeof(T); 1, f);
+         //  writeData(myNode.pos, t, f);
+         // cout<< "inserting at: " << myNode.pos << endl;
+         //            //fseek(f, sizeof(int), SEEK_CUR);
+         //  //fwrite(&readPrev(position.pos, f), sizeof(int), 1, f);
+         //  writeNext(myNode.pos, position.pos, f);
+         //  //fseek(f, sizeof(int), SEEK_CUR);
+         //  //fwrite(&readNext(position.pos, f), sizeof(int), 1, f);
+         //  writePrev(myNode.pos, readPrev(position.pos, f), f);
+         //  cout<< "seting myNode -> prev to: " <<readPrev(position.pos, f)<<endl;
+         //  writeNext(readPrev(myNode.pos, f), myNode.pos, f);
+         //  cout<< "setting myNode.prev -> next to "<< myNode.pos << endl;
+         //  writePrev(position.pos, myNode.pos, f);
+          writeSize(filesize+1, f);
           return myNode;
         }
         T operator[](int index) const{
+          cout<<"[] called on "<<index<<endl;
             auto itr=begin();
             for (int i=0;i<index;++i){
               itr++;
