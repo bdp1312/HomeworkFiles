@@ -1,4 +1,4 @@
-Hash table 
+Hash table
 	deals with sets with a large number of posible keys
 
 	hash table takes a key, calculates a hash value, and assings the key to that hash value's coresponding slot.
@@ -21,7 +21,7 @@ COST of chaining
 
 Properties of a good hash function
 	a hash function should always give the same has code for identical objects.
-	a hash fuction should give diferant vaules for unequal objects. 
+	a hash fuction should give diferant vaules for unequal objects.
 	the function should distribute objects along a broad range.
 
 	the has function should behave as a psudorandom number generator
@@ -30,7 +30,7 @@ standard C++ hash function std::unordered_map
 
 Mapping to an array:
 	hash functions typicly written without knowing the size of future table.
-	max size is usualy max value of computer's int type. 
+	max size is usualy max value of computer's int type.
 	size can be reduced by modulo %
 
 calculation is hashfunction(k)%sizeofTable
@@ -65,3 +65,18 @@ if a duplicate key exists return value stored in existing key
 
 [] if desired value is not in the table, insert it and return its position.
 
+
+		PROBING AND OPEN ADRESSNING
+	if linked lists are undesirable, an alternative method is probing
+
+	Linear Probing:	h(k,i)=(h'(k)+i)%m
+	 increment hash code by one and check if that space is empty.
+	insert if it is.
+ 	Table must be grown if the table is full. Linear probing requires that you grow the table often
+	this method necessitates a good hash function.
+
+	Quadratic probing: h(k,i,) = (h'(k)+ca*i+cb*i^2)%m
+
+	Double hashing: h(k,i)=(ha(k)+i*hb(k))%m
+
+	

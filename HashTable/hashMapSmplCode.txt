@@ -1,0 +1,33 @@
+#include <functional>
+#include <unordered_map>
+#include <iostream>
+#include <cassert>
+using namespace std;
+
+int hashInt(int x){
+  return x;
+}
+
+int main(){
+
+  std::unordered_map<int, double, function<int(int)>> m(20, hashInt);
+  //"function" is keyword for a function object.
+
+  std::unordered_map<int, double, function<int(int)>>
+	m2(20, [](int x){return x;} );
+
+
+
+  //HashMap<int,double,function<int(int)>>HashMap(hashInt);
+
+
+  m[1] =1.0;
+  m[1] = 2.0;
+
+  auto ret = m.insert(std::make_pair(1, 3.0) );
+  assert(ret.second==false);
+  (*ret.first).second = 3.0;
+
+  cout<<m[1]<<endl;
+  return 0;
+}
