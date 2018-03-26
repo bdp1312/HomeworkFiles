@@ -11,9 +11,14 @@ using std::endl;
 
 int main(){
   FileLinkedList<int> myList("myList");
-  myList.push_back(1);
-  cout<< myList[0]<<endl;
-  
+  //cout<<myList.size()<<endl;
+  myList.push_back(555);
+  // for(int i = 0; i < 2; ++i){
+  //   cout<< "myList["<<i<<"] = "<< myList[i]<<endl;
+  // }
+ myList.pop_back();
+
+  cout << myList[0]<<endl;
   cout<<"test done"<<endl;
   return 0;
 }

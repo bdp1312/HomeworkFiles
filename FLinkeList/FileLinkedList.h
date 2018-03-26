@@ -72,7 +72,7 @@ class FileLinkedList {
           if(node == 0){
             cout<< "warning! writing to the sentinal\n";
           }
-          fseek(f, node, SEEK_SET);
+          fseek(f, node*nodeSize+2*sizeof(int), SEEK_SET);
           fwrite(&t, sizeof(T), 1, f);
           cout<< "writing to "<< node<< endl;
         }
@@ -98,9 +98,10 @@ class FileLinkedList {
           return temp;
         }
         void writeFreespace(int n, FILE *f){
-          cout<<"writeFreespace "<<"n: "<< n<<endl;
+          cout<<"writeFreespace "<<"n: "<< n << endl;
           fseek(f, sizeof(int), SEEK_SET);
           fwrite(&n, sizeof(int), 1, f);
+          freespace = n;
         }
 
     public:
@@ -136,21 +137,21 @@ class FileLinkedList {
                   return *this;
                 }
                 const_iterator &operator++(){
-                  ++pos;
+                  pos = readNext(pos, file);
                   return *this;
                 }
                 const_iterator &operator--(){
-                  --pos;
+                  pos = readPrev(pos, file);
                   return *this;
                 }
                 const_iterator operator++(int){
                   const_iterator oldPos(pos, file);
-                  ++pos;
+                  pos = readNext(pos, file);
                   return oldPos;
                 }
                 const_iterator operator--(int){
                   const_iterator oldPos(pos, file);
-                  --pos;
+                  pos = readPrev(pos, file);
                   return oldPos;
                 }
 
@@ -169,7 +170,7 @@ class FileLinkedList {
           } else {
             f = fopen(fname.c_str(), "w+b");
             writeSize(1, f);
-            writeFreespace(1, f);
+            writeFreespace(-1, f);
             writePrev(0, 0, f);
             writeNext(0, 0, f);
 
@@ -180,8 +181,8 @@ class FileLinkedList {
 
         template<typename I>  // The type I will be an iterator.
         FileLinkedList(I begin,I end,const std::string &fname) {
-            // TODO - Write this one here. It is easier than trying to fight with adding a template below.
-
+          f = fopen(fname.c_str(),"w+b");
+          for(auto i=begin; i!=end; i++) push_back(*i);
         }
         ~FileLinkedList(){
           writeSize(filesize, f);
@@ -193,20 +194,20 @@ class FileLinkedList {
         void push_back(const T &t) { insert(end(),t); }
         void pop_back() { erase(--end()); }
         int size() const{return filesize;}
-        void clear() { while (size()>0) pop_back(); }
+        void clear() { while (size()>1) pop_back(); }
 
         const_iterator insert(const_iterator position, const T &t)//writes node at first available freespace or at size if no valid freespace exists
         {
-          cout<<"inserting at "<<position.pos<<endl;
+
           freespace = readFreespace(f);
-          while (freespace > filesize){
-            cout<<"freespace > filesize"<<endl;
-            freespace = readNext(freespace, f);
-            cout<<"freespace "<< freespace <<endl;
-            cout<<"filesize: " << filesize<< endl;
-          }
-          cout<<"freespace = "<< freespace<<endl;
           const_iterator myNode(freespace, f);
+          if(freespace = -1){
+            myNode.pos = readSize(f);
+            writeSize(filesize+1, f);
+          } else {
+            freespace = readNext(freespace, f);
+          }
+          cout<<"inserting at "<<position.pos<<endl;
           writeData(myNode.pos, t, f);
           writePrev(myNode.pos, readPrev(position.pos, f), f);//myNode->prev to --myNode->prev
           writeNext(myNode.pos, readNext(readPrev(position.pos, f), f), f);//myNode->next to --myNode->next
@@ -240,14 +241,12 @@ class FileLinkedList {
             return *itr;
         }
         const_iterator erase(const_iterator position){
-          if(position == end()){
-            filesize = filesize - nodeSize;
-          } else {
-            writeNext(readPrev(position.pos, f), readNext(position.pos, f), f);
-            writePrev(readNext(position.pos, f), readPrev(position.pos, f), f);
-            writeNext(position.pos, freespace, f);
-            freespace = position.pos;
-          }
+          cout<<"erase"<< position.pos<<endl;
+          writeNext(readPrev(position.pos, f), readNext(position.pos, f), f);
+          writePrev(readNext(position.pos, f), readPrev(position.pos, f), f);
+          writeNext(position.pos, freespace, f);
+          freespace = position.pos;
+          writeSize(filesize-1, f);
           return --position;
         }
         void set(const T &value,int index){
