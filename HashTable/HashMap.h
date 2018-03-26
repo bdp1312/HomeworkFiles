@@ -1,3 +1,9 @@
+#if ndef HASHMAP_H
+#define HASHMAP_H
+using std::cout;
+using std::endl;
+template<typename T>
+}
 template<typename K,typename V,typename Hash>
 class HashMap {
     Hash hashFunction;
@@ -6,10 +12,14 @@ class HashMap {
     int alocated;//number of taken positions in hash table
     double loadFactor(int tableSize, int alocated)//calculates load Factor of hashtable
     {
-      return alocated/tableSize;
+      double lf = alocated/tableSize;
+      cout<<"loadFactor = "<<lf<<endl;
+      return lf;
     }
+    vector<vector<pair<K,V>>> table;
+
     // Suggestion for the hash table: either
-    // vector<vector<pair<K,V>>> table;
+    //vector<vector<pair<K,V>>> table;
     // or
     // vector<list<pair<K,V>>> table;
     // would work well for the chaining approach.
@@ -114,13 +124,30 @@ public:
 
     // HashMap &operator=(const HashMap<K,V,Hash> &that); // Only if needed.
 
-    bool empty() const;
+    bool empty() const{return tableSize==0;}
 
     unsigned int size() const;
 
-    iterator find(const key_type& k);
+    iterator find(const key_type& k)
+    {
+      int index = hashFunction(k)%table.size();
 
-    const_iterator find(const key_type& k) const;
+      for(auto itr = table[index].begin(); itr!=table[index].end(); ==itr){
+        if (if k == i->first){
+          return iterator(table.begin()+index, table.end(), itr);
+        }
+      }
+      return end();
+    }
+
+    const_iterator find(const key_type& k) const{
+      for(auto itr = table[index].cbegin(); itr!=table[index].cend(); ==itr){
+        if (if k == i->first){
+          return const_iterator(table.cbegin()+index, table.cend(), itr);
+        }
+      }
+      return cend();
+    }
 
     int count(const key_type& k) const;
 
@@ -131,7 +158,10 @@ public:
         // TODO: Put this one here to simplify the templates
     }
 
-    iterator erase(const_iterator position);
+    iterator erase(const_iterator position)
+    {
+      
+    }
 
     int erase(const key_type& k)
     {
@@ -180,3 +210,4 @@ public:
 private:
     void growTableAndRehash();
 };
+#endif
