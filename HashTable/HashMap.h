@@ -1,19 +1,22 @@
-#if ndef HASHMAP_H
-#define HASHMAP_H
-using std::cout;
-using std::endl;
-template<typename T>
-}
+#ifndef HashMap_H
+#define HashMap_H
+
+#include<vector>
+using std::vector;
+//using std::cout;
+//using std::endl;
+using std::pair;
+
 template<typename K,typename V,typename Hash>
 class HashMap {
     Hash hashFunction;
     // Data to store the hash table and the number of elements.
     int tableSize; //total number of slots in hash table
-    int alocated;//number of taken positions in hash table
-    double loadFactor(int tableSize, int alocated)//calculates load Factor of hashtable
+    int dataload;//number of taken positions in hash table
+    double loadFactor(int tableSize, int dataload)//calculates load Factor of hashtable
     {
-      double lf = alocated/tableSize;
-      cout<<"loadFactor = "<<lf<<endl;
+      double lf = dataload/tableSize;
+      //cout<<"loadFactor = "<<lf<<endl;
       return lf;
     }
     vector<vector<pair<K,V>>> table;
@@ -38,6 +41,7 @@ public:
         typename std::remove_reference<decltype(table[0].begin())>::type subIter;
     public:
         friend class const_iterator;
+        friend class HashMap;
 
         // NOTE: These might be different depending on how you store your table.
         iterator(const decltype(mainIter) mi,const decltype(mainEnd) me):mainIter(mi),mainEnd(me) {
@@ -72,6 +76,7 @@ public:
     };
 
     class const_iterator {
+      friend class HashMap;
         // NOTE: These might be different depending on how you store your table.
         typename std::remove_reference<decltype(table.cbegin())>::type mainIter;
         typename std::remove_reference<decltype(table.cbegin())>::type mainEnd;
@@ -96,10 +101,7 @@ public:
                 mainIter(mi),mainEnd(me),subIter(si) {}
 
         // NOTE: These might be different depending on how you store your table.
-        const_iterator(const iterator &i):mainIter(i.mainIter),mainEnd(i.mainEnd),subIter(i.subIter)
-        {
-
-        }
+        const_iterator(const iterator &i):mainIter(i.mainIter),mainEnd(i.mainEnd),subIter(i.subIter){}
 
         bool operator==(const const_iterator &i) const { return mainIter==i.mainIter && (mainIter==mainEnd || subIter==i.subIter); }
         bool operator!=(const const_iterator &i) const { return !(*this==i); }
@@ -121,18 +123,19 @@ public:
 
     HashMap(const Hash &hf) :hashFunction{ hf }
     {
-      tableSize =0;
-      alocated = 0;
+      table.resize(1000000);
+
+      dataload = 0;
     }
     // HashMap(const HashMap<K,V,Hash> &that); // Only if needed.
 
     // HashMap &operator=(const HashMap<K,V,Hash> &that); // Only if needed.
 
-    bool empty() const{return tableSize==0;}
+    bool empty() const{return dataload==0;}
 
     unsigned int size() const
     {
-      unsigned int theSize = size;
+      unsigned int theSize = dataload;
       return theSize;
     }
 
@@ -140,8 +143,8 @@ public:
     {
       int index = hashFunction(k)%table.size();
 
-      for(auto itr = table[index].begin(); itr!=table[index].end(); ==itr){
-        if (if k == i->first){
+      for(auto itr = table[index].begin(); itr!=table[index].end(); ++itr){
+        if (k == itr->first){
           return iterator(table.begin()+index, table.end(), itr);
         }
       }
@@ -150,35 +153,59 @@ public:
 
     const_iterator find(const key_type& k) const  {
         int index = hashFunction(k)%table.size();
-        for(auto itr = table[index].cbegin(); itr!=table[index].cend(); ==itr){
-          if (if k == i->first){
-            return iterator(table.cbegin()+index, table.cend(), itr);
+        for(auto itr = table[index].cbegin(); itr!=table[index].cend(); ++itr){
+          if (k == itr->first){
+            return const_iterator(table.cbegin()+index, table.cend(), itr);
           }
         }
         return cend();
       }
 
-    int count(const key_type& k) const;
+    int count(const key_type& k) const{
+      auto val = find(k);
+      if(val != end()){
+        return 1;
+      }else{
+        return 0;
+      }
+    }
 
-    std::pair<iterator,bool> insert(const value_type& val);
+    std::pair<iterator,bool> insert(const value_type& val){//insert one element
+      iterator iter = find(val.first);
+      if(iter == end()){
+        int index = hashFunction(val.first)%table.size();
+        table[index].push_back(val);
+        iterator newiter(table.begin()+index, table.end(), --table[index].end());
+        ++dataload;
+        return make_pair(newiter, true);
+      }else{
+        return make_pair(iter, false);
+      }
+    }
 
     template <class InputIterator>
-    void insert(InputIterator first, InputIterator last)// TODO: Put this one here to simplify the templates
+    void insert(InputIterator first, InputIterator last)//insert a range of data
     {
-      if()
-      K key = hashFunction(*first)%table.size();
-      (table[key]).push_back(*last)
-
-      ++tableSize;
+      for(auto i = first; i !=last; ++i){
+        insert(*i);
+      }
+    //   auto key =find(*(first));
+    //   if( key== table.end()){
+    //     K bin = hashFunction(*first)%table.size();
+    //     (table[key]).push_back(*last)
+    //
+    //     ++tableSize;
+    // } else{
+    //   return()
     }
 
     iterator erase(const_iterator position)
     {
+      auto index = position.mainIter-table.begin();
+      auto pos = table[index].erase(position.subIter);
 
-
-
-      --tableSize;
-      return ;
+      --dataload;//fix variable name
+      return iterator(table.begin()+index, table.end(), pos);
     }
 
     int erase(const key_type& k)
@@ -189,14 +216,28 @@ public:
       return 1;
     }
 
-    void clear();
+    void clear()
+    {
+      for(auto i = table.begin(); i != table.end(); ++i){
+        i->clear();
+        dataload = 0;
+      }
+    }
 
     mapped_type &operator[](const K &key)
     {
       return (*insert(make_pair(key, V())).first).second;
     }
 
-    bool operator==(const HashMap<K,V,Hash>& rhs) const;
+    bool operator==(const HashMap<K,V,Hash>& rhs) const{
+      for(auto asdf = begin(); asdf != end(); ++asdf){
+        if(rhs.find((*asdf).first) == rhs.end()){
+          return false;
+        }
+      }
+      if (size()==rhs.size()){return true;}
+      else{return false;}
+    }
 
     bool operator!=(const HashMap<K,V,Hash>& rhs) const {return !(*this==rhs);}
 
