@@ -96,8 +96,7 @@ public:
                 mainIter(mi),mainEnd(me),subIter(si) {}
 
         // NOTE: These might be different depending on how you store your table.
-        const_iterator(const iterator &i):mainIter(i.mainIter),mainEnd(i.mainEnd),subIter(i.subIter)
-        {
+        const_iterator(const iterator &i):mainIter(i.mainIter),mainEnd(i.mainEnd),subIter(i.subIter) {
 
         }
 
@@ -120,21 +119,14 @@ public:
     };
 
     HashMap(const Hash &hf) :hashFunction{ hf }
-    {
-      tableSize =0;
-      alocated = 0;
-    }
+    {}
     // HashMap(const HashMap<K,V,Hash> &that); // Only if needed.
 
     // HashMap &operator=(const HashMap<K,V,Hash> &that); // Only if needed.
 
     bool empty() const{return tableSize==0;}
 
-    unsigned int size() const
-    {
-      unsigned int theSize = size;
-      return theSize;
-    }
+    unsigned int size() const;
 
     iterator find(const key_type& k)
     {
@@ -148,43 +140,36 @@ public:
       return end();
     }
 
-    const_iterator find(const key_type& k) const  {
-        int index = hashFunction(k)%table.size();
-        for(auto itr = table[index].cbegin(); itr!=table[index].cend(); ==itr){
-          if (if k == i->first){
-            return iterator(table.cbegin()+index, table.cend(), itr);
-          }
+    const_iterator find(const key_type& k) const{
+      for(auto itr = table[index].cbegin(); itr!=table[index].cend(); ==itr){
+        if (if k == i->first){
+          return const_iterator(table.cbegin()+index, table.cend(), itr);
         }
-        return cend();
       }
+      return cend();
+    }
 
     int count(const key_type& k) const;
 
     std::pair<iterator,bool> insert(const value_type& val);
 
     template <class InputIterator>
-    void insert(InputIterator first, InputIterator last)// TODO: Put this one here to simplify the templates
-    {
-      if()
-      K key = hashFunction(*first)%table.size();
-      (table[key]).push_back(*last)
-
-      ++tableSize;
+    void insert(InputIterator first, InputIterator last) {
+      // TODO: Put this one here to simplify the templates
+      index = hashFunction(first)
     }
 
-    iterator erase(const_iterator position)
+    iterator erase(const_iterator position)//return iterator after the deleted one
     {
+      int index= position.mainIter - table.cbegin();
+      table[index].erase(subIter)
 
-
-
-      --tableSize;
-      return ;
     }
 
     int erase(const key_type& k)
     {
       const_iterator iter = find(k);
-      if(iter == cend()){return 0;}
+      if(iter = cend()){return 0;}
       erase(iter);
       return 1;
     }
