@@ -158,8 +158,9 @@ public:
             return const_iterator(table.cbegin()+index, table.cend(), itr);
           }
         }
-        return cend();
       }
+      return cend();
+    }
 
     int count(const key_type& k) const{
       auto val = find(k);
@@ -199,7 +200,7 @@ public:
     //   return()
     }
 
-    iterator erase(const_iterator position)
+    iterator erase(const_iterator position)//return iterator after the deleted one
     {
       auto index = position.mainIter-table.begin();
       auto pos = table[index].erase(position.subIter);
@@ -211,7 +212,7 @@ public:
     int erase(const key_type& k)
     {
       const_iterator iter = find(k);
-      if(iter == cend()){return 0;}
+      if(iter = cend()){return 0;}
       erase(iter);
       return 1;
     }
