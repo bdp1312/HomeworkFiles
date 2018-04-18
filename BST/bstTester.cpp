@@ -41,11 +41,30 @@ int main(){
 	bst.insert(make_pair(2, "two"));
 	bst.insert(make_pair(6, "six"));
 	bst.insert(make_pair(9, "nine"));
- 	cout<<"eraseing 7\n";
-	bst.erase(7);
-	cout<<"eraseing 7\n";
-	bst.erase(9);
 
+
+	for(auto i = bst.cbegin(); i != bst.cend(); ++i){
+		cout<<(*i).first<<"\n";
+		cout<<endl;
+	}
+
+	bst.trace();
+
+	// auto o = bst.cbegin();
+	// auto a = constant(o);
+
+	// cout<<(*o).first<<"\n";
+	// cout<<(*a).first<<"\n";
+	cout<<"eraseing 5\n";
+	bst.erase(5);
+	bst.trace();
+	cout<<"eraseing 7\n";
+	bst.erase(7);
+	bst.trace();
+	cout<<"eraseing 9\n";
+	bst.erase(9);
+	bst.trace();
+	bst.clear();
 	cout<<"done\n";
 
 

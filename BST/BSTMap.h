@@ -40,6 +40,7 @@ class BSTMap {
 
     };
 
+
     static Node* findMaxChild(Node *n){
       if(n==nullptr){
         return n;
@@ -138,6 +139,17 @@ public:
             --(*this);
             return tmp;
         }
+        iterator findSuccessor(iterator iter){
+          auto i = ++iter;
+          --iter;
+          return i;
+        }
+        iterator findPredecessor(iterator iter){
+          auto i=--iter;
+          ++iter;
+          return i;
+        }
+
     };
 
     class const_iterator {
@@ -197,6 +209,16 @@ public:
             --(*this);
             return tmp;
         }
+        const_iterator findSuccessor(const_iterator iter){
+          auto i = ++iter;
+          --iter;
+          return i;
+        }
+        const_iterator findPredecessor(const_iterator iter){
+          auto i=--iter;
+          ++iter;
+          return i;
+        }
     };
 
 
@@ -207,6 +229,7 @@ public:
     }
     ~BSTMap() {
         clear();
+        //delete root;
     }
     BSTMap(const BSTMap<K,V> &that) {
       numNodes = 0;
@@ -340,147 +363,54 @@ public:
     }
 
 
-
-
     iterator erase(const_iterator position){
       if(position.node->left ==nullptr&&position.node->right==nullptr){
         if(position.node->parent != nullptr){
           if(*(position.node->parent)<*(position.node)){position.node->parent->right=nullptr;}
           else{position.node->parent->left=nullptr;}
+        } else{
+          root = nullptr;
         }
         iterator retval=iterator((++position).node, root);
         delete position.node;
         --numNodes;
         return retval;
       }
-      else if(++position==cend()){
-        if(position.node->parent==nullptr){
-          root = position.node->left;
-          position.node->left->parent = nullptr;
-          delete position.node;
-        } else {
-          position.node->parent->right=position.node->left;
-          position.node->left->parent= position.node->left;
-          delete position.node;
-        }
-        --numNodes;
-        return end();
-      } else {
-        position.node = (++position.node);
-        replace(++position);
-        return iterator(++position.node, root);
-      }
-    }
-
-    void replace(const_iterator position){
-      if(position.node->right==nullptr&&position.node->left==nullptr){
-        if(position.node->parent != nullptr){
-          if(*(position.node->parent)<*(position.node)){position.node->parent->right=nullptr;}
-          else{position.node->parent->left=nullptr;}
+      else if(position.node->right!=nullptr){
+        Node *n= position.node->right->findMinChild();
+        n->parent->left=n->right;
+        if(position.node->parent!=nullptr){
+          if(*(position.node)>*(position.node->parent)){
+            position.node->parent->right=n;
+          }else{
+            position.node->parent->left=n;
+          }
+        }else{ root = n; }
+        n->left=position.node->left;
+        if(position.node->right!=n){
+          n->right=position.node->right;
         }
         delete position.node;
         --numNodes;
-        return;
+        return iterator(n, root);
       }
-      else if(++position==cend()){
-        if(position.node->parent==nullptr){
-          root = position.node->left;
-          position.node->left->parent = nullptr;
-          delete position.node;
-        } else {
-          position.node->parent->right=position.node->left;
-          position.node->left->parent= position.node->left;
-          delete position.node;
-        }
+      else{
+        Node *n= position.node->left->findMaxChild();
+        n->parent->right=n->left;
+        if(position.node->parent!=nullptr){
+          if(*(position.node)>*(position.node->parent)){
+            position.node->parent->right=n;
+          }else{
+            position.node->parent->left=n;
+          }
+        }else{ root = n; }
+        if(position.node->left!=n){n->left=position.node->left;}
+        n->right=position.node->right;
+        delete position.node;
         --numNodes;
-        return;
-      } else {
-        replace(++position);
-        return;
-      }
+        return iterator(n, root);
+        }
     }
-
-    //   auto retval= iterator(position.node, root);
-    //   ++retval;
-    //   if(position.node->right!=nullptr){
-    //     Node *replacement = position.node->right->findMinChild();
-    //     fixParent(replacement);
-    //     replacement->right = position.node->right;
-    //     replacement->left = position.node->left;
-    //     replacement->parent = position.node->parent;
-    //     if(position.node->parent ==nullptr){
-    //       root = replacement;
-    //     } else if(*(position.node->parent)>*(position.node)){
-    //       position.node->parent->left = replacement;
-    //     } else{
-    //       position.node->parent->right = replacement;
-    //     }
-    //     delete (position.node);
-    //     --numNodes;
-    //     position.node= replacement;
-    //     //  return end();
-    //   } else if(position.node->left!=nullptr){
-    //     Node *replacement = findMaxChild(position.node->left);
-    //     fixParent(replacement);
-    //     replacement->right = position.node->right;
-    //     replacement->left = position.node->left;
-    //     replacement->parent = position.node->parent;
-    //
-    //     if(position.node->parent ==nullptr){
-    //       root = replacement;
-    //     } else if(*(position.node->parent)>*(position.node)){
-    //       position.node->parent->left = replacement;
-    //     } else{
-    //       position.node->parent->right = replacement;
-    //     }
-    //
-    //     delete (position.node);
-    //     --numNodes;
-    //     position.node= replacement;
-    //     //return end();
-    //   } else{
-    //     fixParent(position.node);
-    //     delete (position.node);
-    //     --numNodes;
-    //     //return end();
-    //   }
-    //   return retval;
-    // }
-    // void fixParent(Node *replacement){
-    //
-    //   if(replacement->parent == nullptr){
-    //     root = nullptr;
-    //   }else if((replacement->parent->data).first>(replacement->data).first){
-    //     if(replacement->right){
-    //       replacement->parent->left = replacement->right;
-    //       if(replacement->right){
-    //         replacement->right->parent = replacement->parent;
-    //       }
-    //     } else{
-    //       replacement->parent->left = replacement->left;
-    //       if(replacement->left){
-    //         replacement->left->parent = replacement->parent;
-    //       }
-    //     }
-    //
-    //   } else if((replacement->parent->data).first<(replacement->data).first){
-    //     if(replacement->left){
-    //       replacement->parent->right = replacement->left;
-    //       if(replacement->left){
-    //         replacement->left->parent = replacement->parent;
-    //       }
-    //     } else{
-    //       replacement->parent->right = replacement->right;
-    //       if(replacement->right){
-    //         replacement->right->parent = replacement->parent;
-    //       }
-    //     }
-    //
-    //
-    //   } else{
-    //     //std::cout<<"error: identical key found. 1\n";
-    //   }
-    // }
 
     unsigned int erase(const key_type& k){
         const_iterator it = find(k);
@@ -536,6 +466,14 @@ public:
     const_iterator cbegin() const { return const_iterator(findMinChild(root), root); }
 
     const_iterator cend() const { return const_iterator(nullptr, root); }
+    void trace(){treeTrace(root);}
+    void treeTrace(Node *n){
+      if(n){
+        treeTrace(n->left);
+        std::cout<<n->data.first<<std::endl;
+        treeTrace(n->right);
+      }
+    }
 
 };
 
