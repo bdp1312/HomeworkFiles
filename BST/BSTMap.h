@@ -28,11 +28,11 @@ public:
         bool operator==(const iterator &i) const { /*TODO*/ }
         bool operator!=(const iterator &i) const { return !(*this==i); }
         std::pair<K,V> &operator*() { /*TODO*/ }
-        iterator &operator++() {
+        iterator &operator++() {//returns end() iterator if at the end of a branch
             // TODO
             return *this;
         }
-        iterator &operator--() {
+        iterator &operator--() {//returns nullptr if at base of the tree
             // TODO
             return *this;
         }
