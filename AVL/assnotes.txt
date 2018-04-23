@@ -1,0 +1,8 @@
+Rotation: the idea of changing the pointers in a BST such that the tree is "ballenced".
+IE: the difference in the distance from the root to each leaf is no more than one.
+   It is important to balance a tree efficiently as doing so requires a lot of calculations.
+
+When rotating, there are two cases to consider,
+1. a new leaf is added under n.left.left: THEN rotatate right one n
+
+2. a new leaf is added under n.left.right: rotate left on m then rotate right on n
