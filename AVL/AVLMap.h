@@ -38,6 +38,11 @@ public:
 		bool operator==(const iterator &i) const { return end==i.end && n==i.n; }
 		bool operator!=(const iterator &i) const { return !(*this==i); }
 		std::pair<K,V> &operator*() { return n->data; }
+
+		int height(){
+			return n->height;
+		}
+
 		iterator &operator++() {
 			if(n==nullptr) return *this;
 			if(n->right==nullptr) {
@@ -104,6 +109,9 @@ public:
 		bool operator==(const const_iterator &i) const { return end==i.end && n==i.n; }
 		bool operator!=(const const_iterator &i) const { return !(*this==i); }
 		std::pair<K,V> &operator*() { return n->data; }
+
+		int height(){return n->height;}
+
 		const_iterator &operator++() {
 			if(n==nullptr) return *this;
 			if(n->right==nullptr) {
@@ -218,8 +226,10 @@ public:
       root = rNode;
       rNode->parent=nullptr;
     }
-		node->right=rNode->left;
-		node->right->parent=node;
+		rNode->left=node->right;
+		if(node->right){
+			node->right->parent=node;
+		}
 		node->parent=rNode;
 		rNode->left = node;
 		return;
@@ -229,9 +239,9 @@ public:
 		Node *rNode = node->left;
     if(node->parent){
       if(node->parent->data.first>node->data.first){
-        node->parent->left=rNode;
-      }else{
         node->parent->right=rNode;
+      }else{
+        node->parent->left=rNode;
       }
 			rNode->parent = node->parent;
     } else {
@@ -239,35 +249,14 @@ public:
       rNode->parent=nullptr;
     }
 		node->left = rNode->right;
-		node->left->parent = node;
+		if(node->left){
+			node->left->parent = node;
+		}
 		node->parent=rNode;
     rNode->right=node;
 		return;
   }
 
-
-
-  void updateHeight(Node *n){ //refactor to one arg
-		if(n){
-			if(n->left && n->right){
-				if(n->left->height>n->right->height){
-					n->height = (n->left->height)+1;
-				} else{
-					n->height = (n->right->height)+1;
-				}
-			} else if(n->left) {
-				n->height = (n->left->height)+1;
-			} else if(n->right){
-				n->height = (n->right->height)+1;
-			} else{
-				n->height = 1;
-			}
-//			checkBalance(n);
-			updateHeight(n->parent, n->height+1);
-		}
-	//	std::cout<<"n == nullptr\n";
-    return;
-  }
 
 	void balanceLeft(Node *n){
 		if(n->left->left&&n->left->right){
@@ -282,7 +271,7 @@ public:
 				++n->left->right->height;
 			}
 		} else if(n->left->left){
-			rotateRight(n);
+			rotateLeft(n);
 			n->height = n->height-2;
 		} else{
 			rotateLeft(n->left);
@@ -307,7 +296,7 @@ public:
 				n->height = n->height-2;
 			}
 		} else if(n->right->right){
-			rotateLeft(n);
+			rotateRight(n);
 			n->height = n->height-2;
 		} else {
 			rotateRight(n->right);
@@ -342,6 +331,29 @@ public:
     }
 		return;
   }
+
+	void updateHeight(Node *n){ //refactor to one arg
+		if(n){
+			if(n->left && n->right){
+				if(n->left->height>n->right->height){
+					n->height = (n->left->height)+1;
+				} else{
+					n->height = (n->right->height)+1;
+				}
+			} else if(n->left) {
+				n->height = (n->left->height)+1;
+			} else if(n->right){
+				n->height = (n->right->height)+1;
+			} else{
+				n->height = 1;
+			}
+			//checkBalance(n);
+			updateHeight(n->parent);
+		}
+	//	std::cout<<"n == nullptr\n";
+    return;
+  }
+
 
 
 	iterator begin() {
@@ -419,7 +431,7 @@ private:
 			else rover->parent->right = nullptr;
       Node *trimVal=rover->parent;
 			delete rover;
-      updateHeight(trimVal, 1);
+      updateHeight(trimVal);
 		} else if(rover->left==nullptr) {
 			if(rover==root) root = rover->right;
 			else if(rover==rover->parent->left) {
@@ -431,7 +443,7 @@ private:
 			}
       Node *trimVal=rover->parent;
 			delete rover;
-      updateHeight(trimVal, 1);
+      updateHeight(trimVal);
 		} else if(rover->right==nullptr) {
 			if(rover==root) root = rover->left;
 			else if(rover==rover->parent->left) {
@@ -452,7 +464,7 @@ private:
 				if(rover->left!=nullptr) rover->left->parent = rover;
         Node *trimVal=tmp->parent;
 				delete tmp;
-        updateHeight(trimVal, 1);
+        updateHeight(trimVal);
 			} else {
 				Node *n = rover->left->right;
 				while(n->right!=nullptr) n=n->right;
@@ -461,7 +473,7 @@ private:
 				rover->data = n->data;
         Node *trimVal=n->parent;
 				delete n;
-        updateHeight(trimVal, 1);
+        updateHeight(trimVal);
 			}
 		}
 	}
@@ -529,7 +541,7 @@ std::pair<typename AVLMap<K,V>::iterator, bool> AVLMap<K,V>::insert(const value_
 		if(val.first<prev->data.first) prev->left = n;
 		else prev->right = n;
 	}
-	updateHeight(n->parent, 1);
+	updateHeight(n->parent);
 	return make_pair(iterator(n),true);
 }
 
@@ -583,7 +595,7 @@ typename AVLMap<K,V>::mapped_type &AVLMap<K,V>::operator[](const K &key) {
 		if(key<prev->data.first) prev->left = n;
 		else prev->right = n;
 	}
-	updateHeight(n->parent, 2);
+	updateHeight(n->parent);
 	return n->data.second;
 }
 
